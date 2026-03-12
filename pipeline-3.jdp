@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    stages {
+        stage('PULL'){
+            steps{
+                git branch: 'cdec-b48', url: 'https://github.com/shubhamkalsait/EasyCRUD.git'
+            }
+        }
+        stage ('BUILD'){
+            steps{
+                sh '''
+                    cd backend
+                    mvn clean package -DskipTests
+                '''
+            }
+        }
+        stage ('TEST'){
+            steps{
+                withSonarQubeEnv(instalationName: 'sonar', credentialsId: 'sonar-cred') {
+                    mvn sonar:sonar -Dsonar.projectName='easy-crud'
+                }
+            }
+        }
+        stage ('DEPLOY'){
+            steps{
+                echo 'DEPLOY SUCCESS'
+            }
+        }
+    }
+}
